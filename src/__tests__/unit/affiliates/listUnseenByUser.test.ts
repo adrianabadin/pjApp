@@ -16,6 +16,7 @@ function makeAffiliate(overrides: Partial<Affiliate> = {}): Affiliate {
     dni_numero: "30000001",
     fecha_nacimiento: new Date("1990-01-01"),
     is_seen: false,
+    seen_at: null,
     assigned_user_id: "user-1",
     telefono: null,
     mail: null,
@@ -30,6 +31,9 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     assignToUser: vi.fn(),
     findById: vi.fn(),
     findByDni: vi.fn(),
+    findConfirmedToday: vi.fn().mockResolvedValue([]),
+    countUnassigned: vi.fn().mockResolvedValue(0),
+    assignNextBatch: vi.fn().mockResolvedValue(0),
     ...overrides,
   }
 }
