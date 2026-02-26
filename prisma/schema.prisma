@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Existing table (afiliados) ────────────────────────────────────────────────
+// We ADD columns via migration: id (SERIAL PK), is_seen, assigned_user_id
+model Afiliado {
+  id               Int      @id @default(autoincrement())
+  distrito         String?
+  codigo           Int?
+  apellido         String?
+  nombres          String?
+  genero           String?
+  dni_tipo         String?  @map("dni_tipo")
+  dni_numero       String?
+  fecha_nacimiento DateTime? @db.Date
+  is_seen          Boolean  @default(false)
+  assigned_user_id String?
+
+  assignedUser     User?    @relation(fields: [assigned_user_id], references: [id])
+
+  @@map("afiliados")
+}
+
+// ── Existing table (padron_saladillo) — read-only ────────────────────────────
+model PadronSaladillo {
+  documento String  @id
+  apellido  String?
+  nombre    String?
+  mail      String?
+  telefono  String?
+
+  @@map("padron_saladillo")
+}
+
+// ── New table (users) ─────────────────────────────────────────────────────────
+model User {
+  id             String     @id @default(cuid())
+  email          String     @unique
+  password_hash  String
+  name           String?
+  role           String     @default("operator")
+  created_at     DateTime   @default(now())
+
+  afiliados      Afiliado[]
+
+  @@map("users")
+}
