@@ -62,4 +62,19 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
     `)
     return rows[0] ?? null
   }
+
+  async findByDni(dni: string): Promise<Affiliate | null> {
+    const rows = await prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      SELECT
+        a.id, a.distrito, a.codigo, a.apellido, a.nombres,
+        a.genero, a.dni_tipo, a.dni_numero, a.fecha_nacimiento,
+        a.is_seen, a.assigned_user_id,
+        p.telefono, p.mail
+      FROM afiliados a
+      LEFT JOIN padron_saladillo p ON a.dni_numero = p.documento
+      WHERE a.dni_numero = ${dni}
+      LIMIT 1
+    `)
+    return rows[0] ?? null
+  }
 }

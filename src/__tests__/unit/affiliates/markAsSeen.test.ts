@@ -28,6 +28,7 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     findUnseenByUserId: vi.fn(),
     markAsSeen: vi.fn(),
     assignToUser: vi.fn(),
+    findByDni: vi.fn(),
     findById: vi.fn().mockResolvedValue(null),
     ...overrides,
   }

@@ -29,6 +29,7 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     markAsSeen: vi.fn(),
     assignToUser: vi.fn(),
     findById: vi.fn(),
+    findByDni: vi.fn(),
     ...overrides,
   }
 }

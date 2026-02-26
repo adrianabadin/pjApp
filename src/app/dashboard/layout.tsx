@@ -11,11 +11,19 @@ export default async function DashboardLayout({
   if (!session) redirect("/login")
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">Padrón de Afiliados</h1>
+    <div className="min-h-screen" style={{ backgroundColor: '#f0f9fd' }}>
+      <header className="px-6 py-3 flex items-center justify-between shadow-sm" style={{ backgroundColor: '#020238' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style={{ backgroundColor: '#FFD331', color: '#020238' }}>
+            PJ
+          </div>
+          <div>
+            <p className="font-semibold text-white text-sm leading-none">Padrón de Afiliados</p>
+            <p className="text-xs mt-0.5" style={{ color: '#00B7E2' }}>Saladillo</p>
+          </div>
+        </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">{session.user?.email}</span>
+          <span className="text-xs hidden sm:block" style={{ color: 'rgba(255,255,255,0.6)' }}>{session.user?.email}</span>
           <form
             action={async () => {
               "use server"
@@ -24,14 +32,15 @@ export default async function DashboardLayout({
           >
             <button
               type="submit"
-              className="text-sm text-gray-500 hover:text-gray-900 underline"
+              className="text-xs px-3 py-1.5 rounded-full border font-medium transition-colors"
+              style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.8)' }}
             >
               Salir
             </button>
           </form>
         </div>
       </header>
-      <main className="px-6 py-6">{children}</main>
+      <main className="px-4 sm:px-6 py-6">{children}</main>
     </div>
   )
 }
