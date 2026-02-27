@@ -193,8 +193,6 @@ describe("RegisterWithInvitationUseCase", () => {
 
   describe("Failure Path — validación de password", () => {
     it("lanza error si el password tiene menos de 8 caracteres", async () => {
-      vi.mocked(invitationRepo.findByToken).mockResolvedValue(makeInvitation())
-
       await expect(
         useCase.execute("abc123token", "Juan", "1234567")
       ).rejects.toThrow("La contraseña debe tener al menos 8 caracteres")
