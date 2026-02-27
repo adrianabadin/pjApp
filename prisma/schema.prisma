@@ -45,14 +45,30 @@ model PadronSaladillo {
 
 // ── New table (users) ─────────────────────────────────────────────────────────
 model User {
-  id             String     @id @default(cuid())
-  email          String     @unique
-  password_hash  String
-  name           String?
-  role           String     @default("operator")
-  created_at     DateTime   @default(now())
+  id                     String       @id @default(cuid())
+  email                  String       @unique
+  password_hash          String
+  name                   String?
+  role                   String       @default("operator")
+  created_at             DateTime     @default(now())
+  reset_token            String?      @unique
+  reset_token_expires_at DateTime?
 
-  afiliados      Afiliado[]
+  afiliados              Afiliado[]
+  invitations_sent       Invitation[]
 
   @@map("users")
+}
+
+model Invitation {
+  id            String    @id @default(cuid())
+  email         String
+  token         String    @unique
+  invited_by_id String
+  invited_by    User      @relation(fields: [invited_by_id], references: [id])
+  expires_at    DateTime
+  accepted_at   DateTime?
+  created_at    DateTime  @default(now())
+
+  @@map("invitations")
 }
