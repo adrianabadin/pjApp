@@ -6,10 +6,12 @@ import { ConfirmPresenceByDniUseCase } from "@/modules/affiliates/application/co
 import { PrismaUserRepository } from "@/modules/users/infrastructure/PrismaUserRepository"
 import { CreateUserUseCase } from "@/modules/users/application/createUser"
 import { AuthenticateUserUseCase } from "@/modules/users/application/authenticateUser"
+import { PrismaInvitationRepository } from "@/modules/invitations/infrastructure/PrismaInvitationRepository"
 
 // Repositories
 export const affiliateRepo = new PrismaAffiliateRepository()
 const userRepo = new PrismaUserRepository()
+export const invitationRepo = new PrismaInvitationRepository()
 
 // Use cases
 export const listUnseenByUser = new ListUnseenByUserUseCase(affiliateRepo)

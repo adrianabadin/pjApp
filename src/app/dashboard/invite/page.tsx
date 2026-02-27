@@ -1,9 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { PrismaInvitationRepository } from "@/modules/invitations/infrastructure/PrismaInvitationRepository"
+import { invitationRepo } from "@/lib/di"
 import InviteForm from "./InviteForm"
-
-const invitationRepo = new PrismaInvitationRepository()
 
 export default async function InvitePage() {
   const session = await auth()
