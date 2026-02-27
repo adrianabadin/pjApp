@@ -1,10 +1,8 @@
 "use server"
 
-import { invitationRepo } from "@/lib/di"
-import { PrismaUserRepository } from "@/modules/users/infrastructure/PrismaUserRepository"
+import { invitationRepo, userRepo } from "@/lib/di"
 import { RegisterWithInvitationUseCase } from "@/modules/invitations/application/registerWithInvitation"
 
-const userRepo = new PrismaUserRepository()
 const registerUseCase = new RegisterWithInvitationUseCase(invitationRepo, userRepo)
 
 export async function registerAction(

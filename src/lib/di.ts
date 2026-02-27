@@ -10,7 +10,7 @@ import { PrismaInvitationRepository } from "@/modules/invitations/infrastructure
 
 // Repositories
 export const affiliateRepo = new PrismaAffiliateRepository()
-const userRepo = new PrismaUserRepository()
+export const userRepo = new PrismaUserRepository()
 export const invitationRepo = new PrismaInvitationRepository()
 
 // Use cases
