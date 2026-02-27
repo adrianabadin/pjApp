@@ -28,7 +28,14 @@ export class RegisterWithInvitationUseCase {
       throw new Error("Invitación inválida o expirada")
     }
 
+    const existing = await this.userRepo.findByEmail(invitation.email)
+    if (existing) {
+      throw new Error("Ya existe una cuenta con ese email")
+    }
+
     const passwordHash = await bcrypt.hash(password, 12)
+    // TODO: ideally wrapped in a transaction — if markAccepted fails after create,
+    // the invitation remains usable but a second create attempt will hit a unique constraint
     const user = await this.userRepo.create({
       email: invitation.email,
       password_hash: passwordHash,
