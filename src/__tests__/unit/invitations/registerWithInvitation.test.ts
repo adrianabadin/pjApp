@@ -149,17 +149,17 @@ describe("RegisterWithInvitationUseCase", () => {
       const msg = "Invitación inválida o expirada"
 
       vi.mocked(invitationRepo.findByToken).mockResolvedValue(null)
-      await useCase.execute("x", "J", "pass1234").catch((e) => expect(e.message).toBe(msg))
+      await expect(useCase.execute("x", "J", "pass1234")).rejects.toThrow(msg)
 
       vi.mocked(invitationRepo.findByToken).mockResolvedValue(
         makeInvitation({ accepted_at: new Date() })
       )
-      await useCase.execute("x", "J", "pass1234").catch((e) => expect(e.message).toBe(msg))
+      await expect(useCase.execute("x", "J", "pass1234")).rejects.toThrow(msg)
 
       vi.mocked(invitationRepo.findByToken).mockResolvedValue(
         makeInvitation({ expires_at: new Date(Date.now() - 1) })
       )
-      await useCase.execute("x", "J", "pass1234").catch((e) => expect(e.message).toBe(msg))
+      await expect(useCase.execute("x", "J", "pass1234")).rejects.toThrow(msg)
     })
 
     it("no crea el usuario si el token es inválido", async () => {
