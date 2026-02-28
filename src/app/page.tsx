@@ -54,7 +54,7 @@ export default function Home() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, #020238 55%, rgba(2,2,56,0.85) 100%)",
+                "linear-gradient(to top, #020238 35%, rgba(2,2,56,0.45) 100%)",
             }}
           />
         </div>
@@ -126,7 +126,7 @@ export default function Home() {
           </Link>
 
           {/* Polaroid photos */}
-          <div className="mt-14 flex items-end gap-4">
+          <div className="mt-14 hidden sm:flex items-end gap-4">
             {/* img1 — Perón y Evita */}
             <div
               className="relative flex-shrink-0"

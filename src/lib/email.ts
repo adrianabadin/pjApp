@@ -3,7 +3,7 @@ import { Resend } from "resend"
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+  const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
   const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
   const { error } = await resend.emails.send({
@@ -33,7 +33,7 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
 }
 
 export async function sendInvitationEmail(to: string, token: string): Promise<void> {
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+  const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
   const registerUrl = `${baseUrl}/register?token=${token}`
 
   const { error } = await resend.emails.send({
