@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -11,22 +12,14 @@ export default function Home() {
         className="px-6 py-4 h-20 flex items-center justify-between border-b"
         style={{ borderColor: "rgba(255,255,255,0.1)" }}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
-            style={{ backgroundColor: "#FFD331", color: "#020238" }}
-          >
-            PJ
-          </div>
-          <div>
-            <p className="font-bold text-white text-sm leading-none">
-              Partido Justicialista
-            </p>
-            <p className="text-xs mt-0.5" style={{ color: "#00B7E2" }}>
-              Saladillo · Buenos Aires
-            </p>
-          </div>
-        </div>
+        <Image
+          src="/logo.svg"
+          alt="Partido Justicialista Saladillo"
+          width={140}
+          height={44}
+          className="h-10 w-auto"
+          priority
+        />
         <Link
           href="/login"
           className="text-sm font-medium px-4 py-2 rounded-full transition-colors"
