@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { Fragment, useState, useTransition } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,8 +19,7 @@ interface EditFormData {
 
 function toDateInputValue(date: Date | null): string {
   if (!date) return ""
-  const d = new Date(date)
-  return d.toISOString().split("T")[0]
+  return new Date(date).toISOString().split("T")[0]
 }
 
 interface Props {
@@ -89,22 +88,14 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
             const isExpanded = expandedId === a.id
 
             return (
-              <>
-                <TableRow
-                  key={a.id}
-                  className="cursor-pointer hover:bg-blue-50 transition-colors"
-                  onClick={() => (isExpanded ? closeEdit() : openEdit(a))}
-                >
+              <Fragment key={a.id}>
+                <TableRow>
                   <TableCell className="font-medium text-sm">{name || "—"}</TableCell>
                   <TableCell className="text-sm">{a.dni_numero ?? "—"}</TableCell>
                   <TableCell>
                     {a.genero ? (
-                      <Badge variant="outline" className="text-xs">
-                        {a.genero}
-                      </Badge>
-                    ) : (
-                      "—"
-                    )}
+                      <Badge variant="outline" className="text-xs">{a.genero}</Badge>
+                    ) : "—"}
                   </TableCell>
                   <TableCell className="text-sm">
                     {a.fecha_nacimiento
@@ -116,16 +107,29 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                   <TableCell className="text-sm">{a.calle ?? "—"}</TableCell>
                   <TableCell className="text-sm">{a.altura ?? "—"}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1 flex-wrap">
                       <form action={markAffiliateAsSeenAction.bind(null, a.id)}>
                         <Button
                           size="sm"
                           type="submit"
                           style={{ backgroundColor: "#00B7E2", color: "#020238" }}
                         >
-                          Visto
+                          Visto ✓
                         </Button>
                       </form>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={isPending}
+                        onClick={() => (isExpanded ? closeEdit() : openEdit(a))}
+                        style={
+                          isExpanded
+                            ? { backgroundColor: "#020238", color: "#FFD331" }
+                            : { borderColor: "#020238", color: "#020238" }
+                        }
+                      >
+                        {isExpanded ? "✕ Cerrar" : "✎ Editar"}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -140,8 +144,11 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                 </TableRow>
 
                 {isExpanded && (
-                  <TableRow key={`${a.id}-edit`} style={{ backgroundColor: "#f8fafc" }}>
+                  <TableRow style={{ backgroundColor: "#f8fafc" }}>
                     <TableCell colSpan={9} className="py-4 px-6">
+                      <p className="text-xs font-semibold mb-3" style={{ color: "#020238" }}>
+                        Editando: {name}
+                      </p>
                       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
                         <div className="space-y-1">
                           <Label className="text-xs font-medium" style={{ color: "#020238" }}>
@@ -149,14 +156,11 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                           </Label>
                           <Input
                             value={formData.telefono}
-                            onChange={(e) =>
-                              setFormData((f) => ({ ...f, telefono: e.target.value }))
-                            }
+                            onChange={(e) => setFormData((f) => ({ ...f, telefono: e.target.value }))}
                             placeholder="Ej: 2983123456"
                             className="h-8 text-sm"
                           />
                         </div>
-
                         <div className="space-y-1">
                           <Label className="text-xs font-medium" style={{ color: "#020238" }}>
                             Email
@@ -164,14 +168,11 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                           <Input
                             type="email"
                             value={formData.mail}
-                            onChange={(e) =>
-                              setFormData((f) => ({ ...f, mail: e.target.value }))
-                            }
+                            onChange={(e) => setFormData((f) => ({ ...f, mail: e.target.value }))}
                             placeholder="Ej: juan@mail.com"
                             className="h-8 text-sm"
                           />
                         </div>
-
                         <div className="space-y-1">
                           <Label className="text-xs font-medium" style={{ color: "#020238" }}>
                             Fecha de Nac.
@@ -179,42 +180,33 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                           <Input
                             type="date"
                             value={formData.fecha_nacimiento}
-                            onChange={(e) =>
-                              setFormData((f) => ({ ...f, fecha_nacimiento: e.target.value }))
-                            }
+                            onChange={(e) => setFormData((f) => ({ ...f, fecha_nacimiento: e.target.value }))}
                             className="h-8 text-sm"
                           />
                         </div>
-
                         <div className="space-y-1">
                           <Label className="text-xs font-medium" style={{ color: "#020238" }}>
                             Calle
                           </Label>
                           <Input
                             value={formData.calle}
-                            onChange={(e) =>
-                              setFormData((f) => ({ ...f, calle: e.target.value }))
-                            }
+                            onChange={(e) => setFormData((f) => ({ ...f, calle: e.target.value }))}
                             placeholder="Ej: San Martín"
                             className="h-8 text-sm"
                           />
                         </div>
-
                         <div className="space-y-1">
                           <Label className="text-xs font-medium" style={{ color: "#020238" }}>
                             Altura
                           </Label>
                           <Input
                             value={formData.altura}
-                            onChange={(e) =>
-                              setFormData((f) => ({ ...f, altura: e.target.value }))
-                            }
+                            onChange={(e) => setFormData((f) => ({ ...f, altura: e.target.value }))}
                             placeholder="Ej: 123"
                             className="h-8 text-sm"
                           />
                         </div>
                       </div>
-
                       <div className="flex items-center gap-2 mt-4">
                         <Button
                           size="sm"
@@ -222,16 +214,21 @@ export function PendingAffiliatesTable({ affiliates }: Props) {
                           onClick={() => handleSave(a.id)}
                           style={{ backgroundColor: "#020238", color: "#FFD331" }}
                         >
-                          {isPending ? "Guardando…" : "Guardar"}
+                          {isPending ? "Guardando…" : "Guardar cambios"}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={closeEdit} disabled={isPending}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={closeEdit}
+                          disabled={isPending}
+                        >
                           Cancelar
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             )
           })}
         </TableBody>
