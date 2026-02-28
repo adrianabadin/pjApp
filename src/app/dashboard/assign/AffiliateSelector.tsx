@@ -125,10 +125,12 @@ export default function AffiliateSelector({ affiliates, unassignedCount }: Affil
       </div>
 
       {/* Select-all shortcut */}
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={toggleSelectAll}
-        className="flex items-center gap-2 text-sm w-fit transition-opacity hover:opacity-70"
+        onKeyDown={(e) => e.key === "Enter" && toggleSelectAll()}
+        className="flex items-center gap-2 text-sm w-fit transition-opacity hover:opacity-70 cursor-pointer"
         style={{ color: "#00B7E2" }}
       >
         <Checkbox
@@ -139,7 +141,7 @@ export default function AffiliateSelector({ affiliates, unassignedCount }: Affil
         {allVisibleSelected
           ? "Deseleccionar todos los visibles"
           : `Seleccionar todos los visibles (${filtered.length})`}
-      </button>
+      </div>
 
       {/* Card list */}
       <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 380px)", minHeight: 120 }}>
