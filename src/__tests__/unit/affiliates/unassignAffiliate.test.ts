@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { MarkAsSeenUseCase } from "@/modules/affiliates/application/markAsSeen"
+import { UnassignAffiliateUseCase } from "@/modules/affiliates/application/unassignAffiliate"
 import type { AffiliateRepository } from "@/modules/affiliates/domain/AffiliateRepository"
 import type { Affiliate } from "@/modules/affiliates/domain/Affiliate"
 
-// --- Fake factory ---
 function makeAffiliate(overrides: Partial<Affiliate> = {}): Affiliate {
   return {
     id: 1,
@@ -31,43 +30,49 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     findUnseenByUserId: vi.fn(),
     markAsSeen: vi.fn(),
     assignToUser: vi.fn(),
+    findById: vi.fn().mockResolvedValue(null),
     findByDni: vi.fn(),
     findConfirmedToday: vi.fn().mockResolvedValue([]),
     findAllConfirmed: vi.fn().mockResolvedValue([]),
     countUnassigned: vi.fn().mockResolvedValue(0),
     assignNextBatch: vi.fn().mockResolvedValue(0),
-    findById: vi.fn().mockResolvedValue(null),
     findUnassigned: vi.fn().mockResolvedValue([]),
     updateContactInfo: vi.fn(),
-    unassignFromUser: vi.fn(),
+    unassignFromUser: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   }
 }
 
-describe("MarkAsSeenUseCase", () => {
+describe("UnassignAffiliateUseCase", () => {
   let repo: AffiliateRepository
-  let useCase: MarkAsSeenUseCase
+  let useCase: UnassignAffiliateUseCase
 
   beforeEach(() => {
     repo = makeRepo()
-    useCase = new MarkAsSeenUseCase(repo)
+    useCase = new UnassignAffiliateUseCase(repo)
   })
 
   describe("Happy Path", () => {
-    it("llama markAsSeen en el repositorio cuando el afiliado existe, pertenece al usuario y no fue visto", async () => {
+    it("llama unassignFromUser cuando el afiliado existe y pertenece al usuario", async () => {
       // Arrange
-      const affiliate = makeAffiliate({ id: 1, assigned_user_id: "user-1", is_seen: false })
-      const seenAffiliate = { ...affiliate, is_seen: true }
+      const affiliate = makeAffiliate({ id: 1, assigned_user_id: "user-1" })
       vi.mocked(repo.findById).mockResolvedValue(affiliate)
-      vi.mocked(repo.markAsSeen).mockResolvedValue(seenAffiliate)
 
       // Act
-      const result = await useCase.execute(1, "user-1")
+      await useCase.execute(1, "user-1")
 
       // Assert
       expect(repo.findById).toHaveBeenCalledWith(1)
-      expect(repo.markAsSeen).toHaveBeenCalledWith(1)
-      expect(result.is_seen).toBe(true)
+      expect(repo.unassignFromUser).toHaveBeenCalledWith(1)
+    })
+
+    it("resuelve sin valor (void) en el happy path", async () => {
+      // Arrange
+      const affiliate = makeAffiliate({ id: 1, assigned_user_id: "user-1" })
+      vi.mocked(repo.findById).mockResolvedValue(affiliate)
+
+      // Act & Assert
+      await expect(useCase.execute(1, "user-1")).resolves.toBeUndefined()
     })
   })
 
@@ -82,7 +87,7 @@ describe("MarkAsSeenUseCase", () => {
       )
     })
 
-    it("no llama markAsSeen si el afiliado no existe", async () => {
+    it("no llama unassignFromUser si el afiliado no existe", async () => {
       // Arrange
       vi.mocked(repo.findById).mockResolvedValue(null)
 
@@ -90,7 +95,7 @@ describe("MarkAsSeenUseCase", () => {
       await useCase.execute(999, "user-1").catch(() => {})
 
       // Assert
-      expect(repo.markAsSeen).not.toHaveBeenCalled()
+      expect(repo.unassignFromUser).not.toHaveBeenCalled()
     })
 
     it("lanza error si el afiliado no pertenece al usuario", async () => {
@@ -100,11 +105,11 @@ describe("MarkAsSeenUseCase", () => {
 
       // Act & Assert
       await expect(useCase.execute(1, "user-1")).rejects.toThrow(
-        "Not authorized to mark this affiliate as seen"
+        "Not authorized to unassign this affiliate"
       )
     })
 
-    it("no llama markAsSeen si el afiliado pertenece a otro usuario", async () => {
+    it("no llama unassignFromUser si el afiliado pertenece a otro usuario", async () => {
       // Arrange
       const affiliate = makeAffiliate({ id: 1, assigned_user_id: "user-otro" })
       vi.mocked(repo.findById).mockResolvedValue(affiliate)
@@ -113,45 +118,17 @@ describe("MarkAsSeenUseCase", () => {
       await useCase.execute(1, "user-1").catch(() => {})
 
       // Assert
-      expect(repo.markAsSeen).not.toHaveBeenCalled()
+      expect(repo.unassignFromUser).not.toHaveBeenCalled()
     })
 
-    it("propaga excepciones del repositorio al buscar por id", async () => {
-      // Arrange
-      vi.mocked(repo.findById).mockRejectedValue(new Error("DB error"))
-
-      // Act & Assert
-      await expect(useCase.execute(1, "user-1")).rejects.toThrow("DB error")
-    })
-  })
-
-  describe("Edge Cases - Idempotencia", () => {
-    it("retorna el afiliado sin llamar markAsSeen si ya está marcado como visto (idempotente)", async () => {
-      // Arrange
-      const alreadySeen = makeAffiliate({
-        id: 1,
-        assigned_user_id: "user-1",
-        is_seen: true,
-      })
-      vi.mocked(repo.findById).mockResolvedValue(alreadySeen)
-
-      // Act
-      const result = await useCase.execute(1, "user-1")
-
-      // Assert
-      expect(repo.markAsSeen).not.toHaveBeenCalled()
-      expect(result).toEqual(alreadySeen)
-      expect(result.is_seen).toBe(true)
-    })
-
-    it("afiliado con assigned_user_id null no pertenece a ningún usuario", async () => {
+    it("lanza error de autorización cuando assigned_user_id es null", async () => {
       // Arrange
       const affiliate = makeAffiliate({ id: 1, assigned_user_id: null })
       vi.mocked(repo.findById).mockResolvedValue(affiliate)
 
       // Act & Assert
       await expect(useCase.execute(1, "user-1")).rejects.toThrow(
-        "Not authorized to mark this affiliate as seen"
+        "Not authorized to unassign this affiliate"
       )
     })
   })

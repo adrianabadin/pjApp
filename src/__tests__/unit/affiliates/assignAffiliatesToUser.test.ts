@@ -14,6 +14,8 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     countUnassigned: vi.fn().mockResolvedValue(0),
     assignNextBatch: vi.fn().mockResolvedValue(0),
     findUnassigned: vi.fn().mockResolvedValue([]),
+    updateContactInfo: vi.fn(),
+    unassignFromUser: vi.fn(),
     ...overrides,
   }
 }

@@ -3,6 +3,8 @@ import { ListUnseenByUserUseCase } from "@/modules/affiliates/application/listUn
 import { MarkAsSeenUseCase } from "@/modules/affiliates/application/markAsSeen"
 import { AssignAffiliatesToUserUseCase } from "@/modules/affiliates/application/assignAffiliatesToUser"
 import { ConfirmPresenceByDniUseCase } from "@/modules/affiliates/application/confirmPresenceByDni"
+import { UpdateAffiliateContactUseCase } from "@/modules/affiliates/application/updateAffiliateContact"
+import { UnassignAffiliateUseCase } from "@/modules/affiliates/application/unassignAffiliate"
 import { PrismaUserRepository } from "@/modules/users/infrastructure/PrismaUserRepository"
 import { CreateUserUseCase } from "@/modules/users/application/createUser"
 import { AuthenticateUserUseCase } from "@/modules/users/application/authenticateUser"
@@ -20,3 +22,5 @@ export const assignAffiliatesToUser = new AssignAffiliatesToUserUseCase(affiliat
 export const createUser = new CreateUserUseCase(userRepo)
 export const authenticateUser = new AuthenticateUserUseCase(userRepo)
 export const confirmPresenceByDni = new ConfirmPresenceByDniUseCase(affiliateRepo)
+export const updateAffiliateContact = new UpdateAffiliateContactUseCase(affiliateRepo)
+export const unassignAffiliate = new UnassignAffiliateUseCase(affiliateRepo)

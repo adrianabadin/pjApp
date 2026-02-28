@@ -1,5 +1,13 @@
 import type { Affiliate } from "./Affiliate"
 
+export interface AffiliateContactData {
+  telefono?: string | null
+  mail?: string | null
+  calle?: string | null
+  altura?: string | null
+  fecha_nacimiento?: Date | null
+}
+
 export interface AffiliateRepository {
   findUnseenByUserId(userId: string): Promise<Affiliate[]>
   findConfirmedToday(): Promise<Affiliate[]>
@@ -11,4 +19,6 @@ export interface AffiliateRepository {
   countUnassigned(): Promise<number>
   assignNextBatch(count: number, userId: string): Promise<number>
   findUnassigned(limit?: number): Promise<Affiliate[]>
+  updateContactInfo(id: number, data: AffiliateContactData): Promise<Affiliate>
+  unassignFromUser(id: number): Promise<void>
 }

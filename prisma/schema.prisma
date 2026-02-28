@@ -23,6 +23,10 @@ model Afiliado {
   dni_tipo         String?  @map("dni_tipo")
   dni_numero       String?
   fecha_nacimiento DateTime? @db.Date
+  telefono         String?
+  mail             String?
+  calle            String?
+  altura           String?
   is_seen          Boolean   @default(false)
   seen_at          DateTime? @db.Timestamptz
   assigned_user_id String?

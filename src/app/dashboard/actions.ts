@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { markAsSeen } from "@/lib/di"
+import { markAsSeen, updateAffiliateContact, unassignAffiliate } from "@/lib/di"
 import { revalidatePath } from "next/cache"
 
 export async function markAffiliateAsSeenAction(affiliateId: number) {
@@ -9,6 +9,30 @@ export async function markAffiliateAsSeenAction(affiliateId: number) {
   if (!session?.user?.id) throw new Error("Unauthorized")
 
   await markAsSeen.execute(affiliateId, session.user.id)
+  revalidatePath("/dashboard")
+}
+
+export async function updateAffiliateContactAction(
+  affiliateId: number,
+  data: { telefono?: string; mail?: string; calle?: string; altura?: string; fecha_nacimiento?: string }
+) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+  const contactData = {
+    telefono: data.telefono || null,
+    mail: data.mail || null,
+    calle: data.calle || null,
+    altura: data.altura || null,
+    fecha_nacimiento: data.fecha_nacimiento ? new Date(data.fecha_nacimiento) : undefined,
+  }
+  await updateAffiliateContact.execute(affiliateId, session.user.id, contactData)
+  revalidatePath("/dashboard")
+}
+
+export async function unassignAffiliateAction(affiliateId: number) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+  await unassignAffiliate.execute(affiliateId, session.user.id)
   revalidatePath("/dashboard")
 }
 

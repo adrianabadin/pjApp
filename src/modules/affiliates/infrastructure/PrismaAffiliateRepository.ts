@@ -1,4 +1,4 @@
-import type { AffiliateRepository } from "../domain/AffiliateRepository"
+import type { AffiliateRepository, AffiliateContactData } from "../domain/AffiliateRepository"
 import type { Affiliate } from "../domain/Affiliate"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@/generated/prisma/client"
@@ -7,7 +7,9 @@ const SELECT_COLS = Prisma.sql`
   a.id, a.distrito, a.codigo, a.apellido, a.nombres,
   a.genero, a.dni_tipo, a.dni_numero, a.fecha_nacimiento,
   a.is_seen, a.seen_at, a.assigned_user_id,
-  p.telefono, p.mail
+  COALESCE(a.telefono, p.telefono) AS telefono,
+  COALESCE(a.mail, p.mail) AS mail,
+  a.calle, a.altura
 `
 
 export class PrismaAffiliateRepository implements AffiliateRepository {
@@ -50,7 +52,7 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
       WHERE id = ${affiliateId}
       RETURNING id, distrito, codigo, apellido, nombres, genero, dni_tipo,
                 dni_numero, fecha_nacimiento, is_seen, seen_at, assigned_user_id,
-                NULL::text AS telefono, NULL::text AS mail
+                telefono, mail, calle, altura
     `)
     return rows[0]
   }
@@ -93,7 +95,6 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
   }
 
   async assignNextBatch(count: number, userId: string): Promise<number> {
-    // Assigns the next `count` unassigned affiliates to the user
     const result = await prisma.$executeRaw(Prisma.sql`
       UPDATE afiliados
       SET assigned_user_id = ${userId}, is_seen = false, seen_at = NULL
@@ -115,6 +116,45 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
       WHERE a.assigned_user_id IS NULL
       ORDER BY a.apellido NULLS LAST
       LIMIT ${limit}
+    `)
+  }
+
+  async updateContactInfo(id: number, data: AffiliateContactData): Promise<Affiliate> {
+    const setClauses: Prisma.Sql[] = []
+
+    if (data.telefono !== undefined)
+      setClauses.push(Prisma.sql`telefono = ${data.telefono}`)
+    if (data.mail !== undefined)
+      setClauses.push(Prisma.sql`mail = ${data.mail}`)
+    if (data.calle !== undefined)
+      setClauses.push(Prisma.sql`calle = ${data.calle}`)
+    if (data.altura !== undefined)
+      setClauses.push(Prisma.sql`altura = ${data.altura}`)
+    if (data.fecha_nacimiento !== undefined)
+      setClauses.push(Prisma.sql`fecha_nacimiento = ${data.fecha_nacimiento}`)
+
+    if (setClauses.length === 0) {
+      const existing = await this.findById(id)
+      return existing!
+    }
+
+    const rows = await prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      UPDATE afiliados a
+      SET ${Prisma.join(setClauses, ", ")}
+      WHERE a.id = ${id}
+      RETURNING a.id, a.distrito, a.codigo, a.apellido, a.nombres,
+                a.genero, a.dni_tipo, a.dni_numero, a.fecha_nacimiento,
+                a.is_seen, a.seen_at, a.assigned_user_id,
+                a.telefono, a.mail, a.calle, a.altura
+    `)
+    return rows[0]
+  }
+
+  async unassignFromUser(id: number): Promise<void> {
+    await prisma.$executeRaw(Prisma.sql`
+      UPDATE afiliados
+      SET assigned_user_id = NULL, is_seen = false, seen_at = NULL
+      WHERE id = ${id}
     `)
   }
 }

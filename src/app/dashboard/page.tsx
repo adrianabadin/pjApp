@@ -3,9 +3,8 @@ import { redirect } from "next/navigation"
 import { listUnseenByUser, affiliateRepo } from "@/lib/di"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { markAffiliateAsSeenAction } from "./actions"
 import { PresenceRegistration } from "./PresenceRegistration"
+import { PendingAffiliatesTable } from "./PendingAffiliatesTable"
 import Link from "next/link"
 import type { Affiliate } from "@/modules/affiliates/domain/Affiliate"
 
@@ -160,48 +159,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow style={{ backgroundColor: '#f0f9fd' }}>
-                  <TableHead style={{ color: '#020238' }}>Apellido y Nombre</TableHead>
-                  <TableHead style={{ color: '#020238' }}>DNI</TableHead>
-                  <TableHead style={{ color: '#020238' }}>Género</TableHead>
-                  <TableHead style={{ color: '#020238' }}>Fecha Nac.</TableHead>
-                  <TableHead style={{ color: '#020238' }}>Teléfono</TableHead>
-                  <TableHead style={{ color: '#020238' }}>Email</TableHead>
-                  <TableHead className="w-24" style={{ color: '#020238' }}>Acción</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pendingAffiliates.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium text-sm">
-                      {[a.apellido, a.nombres].filter(Boolean).join(", ")}
-                    </TableCell>
-                    <TableCell className="text-sm">{a.dni_numero ?? "—"}</TableCell>
-                    <TableCell>
-                      {a.genero ? <Badge variant="outline" className="text-xs">{a.genero}</Badge> : "—"}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {a.fecha_nacimiento
-                        ? new Date(a.fecha_nacimiento).toLocaleDateString("es-AR")
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-sm">{a.telefono ?? "—"}</TableCell>
-                    <TableCell className="text-sm">{a.mail ?? "—"}</TableCell>
-                    <TableCell>
-                      <form action={markAffiliateAsSeenAction.bind(null, a.id)}>
-                        <Button size="sm" type="submit" style={{ backgroundColor: '#00B7E2', color: '#020238' }}>
-                          Visto
-                        </Button>
-                      </form>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <PendingAffiliatesTable affiliates={pendingAffiliates} />
         )}
       </section>
     </div>

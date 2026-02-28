@@ -11,7 +11,9 @@ export interface Affiliate {
   is_seen: boolean
   seen_at: Date | null
   assigned_user_id: string | null
-  // Joined from padron_saladillo
+  // Joined from padron_saladillo (with COALESCE override from afiliados)
   telefono: string | null
   mail: string | null
+  calle: string | null
+  altura: string | null
 }

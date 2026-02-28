@@ -20,6 +20,8 @@ function makeAffiliate(overrides: Partial<Affiliate> = {}): Affiliate {
     assigned_user_id: "user-1",
     telefono: null,
     mail: null,
+    calle: null,
+    altura: null,
     ...overrides,
   }
 }
@@ -36,6 +38,8 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     countUnassigned: vi.fn().mockResolvedValue(0),
     assignNextBatch: vi.fn().mockResolvedValue(0),
     findUnassigned: vi.fn().mockResolvedValue([]),
+    updateContactInfo: vi.fn(),
+    unassignFromUser: vi.fn(),
     ...overrides,
   }
 }
