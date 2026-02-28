@@ -4,14 +4,29 @@ import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import type { Affiliate } from "@/modules/affiliates/domain/Affiliate"
 import { assignSelectedAffiliatesAction } from "./actions"
+import { updateAnyAffiliateContactAction } from "../../dashboard/actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
 interface AffiliateSelectorProps {
   affiliates: Affiliate[]
   unassignedCount: number
+}
+
+interface EditFormData {
+  telefono: string
+  mail: string
+  calle: string
+  altura: string
+  fecha_nacimiento: string
+}
+
+function toDateInputValue(date: Date | null): string {
+  if (!date) return ""
+  return new Date(date).toISOString().split("T")[0]
 }
 
 export default function AffiliateSelector({ affiliates, unassignedCount }: AffiliateSelectorProps) {
@@ -22,6 +37,15 @@ export default function AffiliateSelector({ affiliates, unassignedCount }: Affil
   const [nombresFilter, setNombresFilter] = useState("")
   const [dniFilter, setDniFilter] = useState("")
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editForm, setEditForm] = useState<EditFormData>({
+    telefono: "",
+    mail: "",
+    calle: "",
+    altura: "",
+    fecha_nacimiento: "",
+  })
 
   const filtered = useMemo(() => {
     const ap = apellidoFilter.trim().toLowerCase()
@@ -68,6 +92,29 @@ export default function AffiliateSelector({ affiliates, unassignedCount }: Affil
     startTransition(async () => {
       await assignSelectedAffiliatesAction(ids)
       setSelectedIds(new Set())
+      router.refresh()
+    })
+  }
+
+  function openEdit(a: Affiliate) {
+    setEditingId(a.id)
+    setEditForm({
+      telefono: a.telefono ?? "",
+      mail: a.mail ?? "",
+      calle: a.calle ?? "",
+      altura: a.altura ?? "",
+      fecha_nacimiento: toDateInputValue(a.fecha_nacimiento),
+    })
+  }
+
+  function closeEdit() {
+    setEditingId(null)
+  }
+
+  function handleSaveEdit(affiliateId: number) {
+    startTransition(async () => {
+      await updateAnyAffiliateContactAction(affiliateId, editForm)
+      setEditingId(null)
       router.refresh()
     })
   }
@@ -156,53 +203,160 @@ export default function AffiliateSelector({ affiliates, unassignedCount }: Affil
           <div className="flex flex-col gap-2">
             {filtered.map((a) => {
               const selected = selectedIds.has(a.id)
+              const isEditing = editingId === a.id
               return (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => toggleOne(a.id)}
-                  className="w-full text-left rounded-xl border px-4 py-3 transition-all active:scale-[0.99]"
-                  style={{
-                    backgroundColor: selected ? "#fffbea" : "#fff",
-                    borderColor: selected ? "#FFD331" : "#e5e7eb",
-                    boxShadow: selected
-                      ? "0 0 0 2px #FFD33140"
-                      : "0 1px 3px rgba(0,0,0,0.06)",
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    {/* Left: name block */}
-                    <div className="min-w-0">
-                      <p
-                        className="font-semibold text-sm leading-tight truncate"
-                        style={{ color: "#020238" }}
-                      >
-                        {a.apellido ?? "—"}, {a.nombres ?? "—"}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1.5">
-                        <span className="flex items-center gap-1 text-xs" style={{ color: "#4a5568" }}>
-                          <span className="font-medium" style={{ color: "#6b7280" }}>DNI</span>
-                          <span className="font-mono">{a.dni_numero ?? "—"}</span>
-                        </span>
-                        {a.telefono && (
+                <div key={a.id} className="flex flex-col">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => toggleOne(a.id)}
+                    onKeyDown={(e) => e.key === "Enter" && toggleOne(a.id)}
+                    className="w-full text-left rounded-xl border px-4 py-3 transition-all active:scale-[0.99] cursor-pointer"
+                    style={{
+                      backgroundColor: selected ? "#fffbea" : "#fff",
+                      borderColor: selected ? "#FFD331" : "#e5e7eb",
+                      boxShadow: selected
+                        ? "0 0 0 2px #FFD33140"
+                        : "0 1px 3px rgba(0,0,0,0.06)",
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      {/* Left: name block */}
+                      <div className="min-w-0">
+                        <p
+                          className="font-semibold text-sm leading-tight truncate"
+                          style={{ color: "#020238" }}
+                        >
+                          {a.apellido ?? "—"}, {a.nombres ?? "—"}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1.5">
                           <span className="flex items-center gap-1 text-xs" style={{ color: "#4a5568" }}>
-                            <span className="font-medium" style={{ color: "#6b7280" }}>Tel.</span>
-                            <span>{a.telefono}</span>
+                            <span className="font-medium" style={{ color: "#6b7280" }}>DNI</span>
+                            <span className="font-mono">{a.dni_numero ?? "—"}</span>
                           </span>
-                        )}
+                          {a.telefono && (
+                            <span className="flex items-center gap-1 text-xs" style={{ color: "#4a5568" }}>
+                              <span className="font-medium" style={{ color: "#6b7280" }}>Tel.</span>
+                              <span>{a.telefono}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: edit button + checkbox */}
+                      <div className="flex items-center gap-2 shrink-0 pt-0.5">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={isPending}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            isEditing ? closeEdit() : openEdit(a)
+                          }}
+                          className="h-7 w-7 p-0 text-base"
+                          title="Editar contacto"
+                        >
+                          {isEditing ? "✕" : "✎"}
+                        </Button>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selected}
+                            onCheckedChange={() => toggleOne(a.id)}
+                            aria-label={`Seleccionar ${a.apellido}`}
+                          />
+                        </div>
                       </div>
                     </div>
-
-                    {/* Right: checkbox */}
-                    <div className="shrink-0 pt-0.5" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selected}
-                        onCheckedChange={() => toggleOne(a.id)}
-                        aria-label={`Seleccionar ${a.apellido}`}
-                      />
-                    </div>
                   </div>
-                </button>
+
+                  {/* Inline edit panel */}
+                  {isEditing && (
+                    <div
+                      className="rounded-b-xl border border-t-0 px-4 py-4"
+                      style={{ backgroundColor: "#f8fafc", borderColor: "#e5e7eb" }}
+                    >
+                      <p className="text-xs font-semibold mb-3" style={{ color: "#020238" }}>
+                        Editando: {a.apellido}, {a.nombres}
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium" style={{ color: "#020238" }}>
+                            Teléfono
+                          </Label>
+                          <Input
+                            value={editForm.telefono}
+                            onChange={(e) => setEditForm((f) => ({ ...f, telefono: e.target.value }))}
+                            placeholder="Ej: 2983123456"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium" style={{ color: "#020238" }}>
+                            Email
+                          </Label>
+                          <Input
+                            type="email"
+                            value={editForm.mail}
+                            onChange={(e) => setEditForm((f) => ({ ...f, mail: e.target.value }))}
+                            placeholder="Ej: juan@mail.com"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium" style={{ color: "#020238" }}>
+                            Fecha de Nac.
+                          </Label>
+                          <Input
+                            type="date"
+                            value={editForm.fecha_nacimiento}
+                            onChange={(e) => setEditForm((f) => ({ ...f, fecha_nacimiento: e.target.value }))}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium" style={{ color: "#020238" }}>
+                            Calle
+                          </Label>
+                          <Input
+                            value={editForm.calle}
+                            onChange={(e) => setEditForm((f) => ({ ...f, calle: e.target.value }))}
+                            placeholder="Ej: San Martín"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium" style={{ color: "#020238" }}>
+                            Altura
+                          </Label>
+                          <Input
+                            value={editForm.altura}
+                            onChange={(e) => setEditForm((f) => ({ ...f, altura: e.target.value }))}
+                            placeholder="Ej: 123"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          disabled={isPending}
+                          onClick={() => handleSaveEdit(a.id)}
+                          style={{ backgroundColor: "#020238", color: "#FFD331" }}
+                        >
+                          {isPending ? "Guardando…" : "Guardar cambios"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={closeEdit}
+                          disabled={isPending}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )
             })}
           </div>

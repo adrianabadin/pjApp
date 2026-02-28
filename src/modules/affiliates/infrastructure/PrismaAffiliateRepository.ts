@@ -157,4 +157,17 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
       WHERE id = ${id}
     `)
   }
+
+  async unmarkAsSeen(id: number): Promise<Affiliate> {
+    const rows = await prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      UPDATE afiliados a
+      SET is_seen = false, seen_at = NULL
+      WHERE a.id = ${id}
+      RETURNING a.id, a.distrito, a.codigo, a.apellido, a.nombres,
+                a.genero, a.dni_tipo, a.dni_numero, a.fecha_nacimiento,
+                a.is_seen, a.seen_at, a.assigned_user_id,
+                a.telefono, a.mail, a.calle, a.altura
+    `)
+    return rows[0]
+  }
 }

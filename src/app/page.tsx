@@ -95,13 +95,13 @@ export default function Home() {
             style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
           />
 
-          <p
+          {/* <p
             className="text-sm leading-relaxed mb-10 max-w-xs"
             style={{ color: "rgba(255,255,255,0.5)" }}
           >
             Sistema de gestión y registro del padrón de afiliados del distrito
             Saladillo.
-          </p>
+          </p> */}
 
           <Link
             href="/login"
@@ -198,7 +198,10 @@ export default function Home() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none">
             <p
               className="text-4xl font-bold italic tracking-tight"
-              style={{ color: "#FFD331", textShadow: "0 2px 24px rgba(0,0,0,0.8)" }}
+              style={{
+                color: "#FFD331",
+                textShadow: "0 2px 24px rgba(0,0,0,0.8)",
+              }}
             >
               El Futuro
             </p>
@@ -209,12 +212,15 @@ export default function Home() {
             className="absolute bottom-6 right-6 z-20"
             style={{ transform: "rotate(1.5deg)" }}
           >
-            <div className="shadow-[0_8px_40px_rgba(0,0,0,0.7)] border border-white/10 overflow-hidden" style={{ width: 200 }}>
+            <div
+              className="shadow-[0_8px_40px_rgba(0,0,0,0.7)] border border-white/10 overflow-hidden"
+              style={{ width: 250 }}
+            >
               <Image
                 src="/img4.jpg"
                 alt="Boleta Peronismo Derecho al Futuro"
-                width={200}
-                height={283}
+                width={250}
+                height={353}
                 className="object-cover block"
               />
             </div>

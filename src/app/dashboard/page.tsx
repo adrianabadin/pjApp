@@ -1,10 +1,10 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { listUnseenByUser, affiliateRepo } from "@/lib/di"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { PresenceRegistration } from "./PresenceRegistration"
 import { PendingAffiliatesTable } from "./PendingAffiliatesTable"
+import { ConfirmedAffiliatesTable } from "./ConfirmedAffiliatesTable"
 import Link from "next/link"
 import type { Affiliate } from "@/modules/affiliates/domain/Affiliate"
 
@@ -76,45 +76,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {confirmedGroups.map(({ label, items }) => (
-              <div key={label}>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-2 px-1" style={{ color: '#6b7280' }}>
-                  {label} — {items.length}
-                </p>
-                <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
-                  <Table>
-                    <TableHeader>
-                      <TableRow style={{ backgroundColor: '#f0f9fd' }}>
-                        <TableHead style={{ color: '#020238' }}>Apellido y Nombre</TableHead>
-                        <TableHead style={{ color: '#020238' }}>DNI</TableHead>
-                        <TableHead style={{ color: '#020238' }}>Teléfono</TableHead>
-                        <TableHead style={{ color: '#020238' }}>Email</TableHead>
-                        <TableHead style={{ color: '#020238' }}>Hora</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {items.map((a) => (
-                        <TableRow key={a.id}>
-                          <TableCell className="font-medium text-sm">
-                            {[a.apellido, a.nombres].filter(Boolean).join(", ")}
-                          </TableCell>
-                          <TableCell className="text-sm">{a.dni_numero ?? "—"}</TableCell>
-                          <TableCell className="text-sm">{a.telefono ?? "—"}</TableCell>
-                          <TableCell className="text-sm">{a.mail ?? "—"}</TableCell>
-                          <TableCell className="text-sm">
-                            {a.seen_at
-                              ? new Date(a.seen_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
-                              : "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ConfirmedAffiliatesTable groups={confirmedGroups} />
         )}
       </section>
 

@@ -16,6 +16,7 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     findUnassigned: vi.fn().mockResolvedValue([]),
     updateContactInfo: vi.fn(),
     unassignFromUser: vi.fn(),
+    unmarkAsSeen: vi.fn(),
     ...overrides,
   }
 }

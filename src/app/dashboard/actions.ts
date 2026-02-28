@@ -36,6 +36,33 @@ export async function unassignAffiliateAction(affiliateId: number) {
   revalidatePath("/dashboard")
 }
 
+export async function unmarkAffiliateAsSeenAction(affiliateId: number) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+  const { affiliateRepo } = await import("@/lib/di")
+  await affiliateRepo.unmarkAsSeen(affiliateId)
+  revalidatePath("/dashboard")
+}
+
+export async function updateAnyAffiliateContactAction(
+  affiliateId: number,
+  data: { telefono?: string; mail?: string; calle?: string; altura?: string; fecha_nacimiento?: string }
+) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+  const { affiliateRepo } = await import("@/lib/di")
+  const contactData = {
+    telefono: data.telefono || null,
+    mail: data.mail || null,
+    calle: data.calle || null,
+    altura: data.altura || null,
+    fecha_nacimiento: data.fecha_nacimiento ? new Date(data.fecha_nacimiento) : undefined,
+  }
+  await affiliateRepo.updateContactInfo(affiliateId, contactData)
+  revalidatePath("/dashboard")
+  revalidatePath("/dashboard/assign")
+}
+
 export async function lookupAffiliateByDniAction(
   _prevState: unknown,
   formData: FormData

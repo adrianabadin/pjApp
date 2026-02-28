@@ -21,4 +21,5 @@ export interface AffiliateRepository {
   findUnassigned(limit?: number): Promise<Affiliate[]>
   updateContactInfo(id: number, data: AffiliateContactData): Promise<Affiliate>
   unassignFromUser(id: number): Promise<void>
+  unmarkAsSeen(id: number): Promise<Affiliate>
 }
