@@ -45,3 +45,4 @@ next-env.d.ts
 # local config with sensitive data
 .mcp.json
 .claude/
+.worktrees/
