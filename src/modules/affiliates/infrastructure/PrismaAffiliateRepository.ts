@@ -33,20 +33,35 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
     `)
   }
 
+  async findAllConfirmed(): Promise<Affiliate[]> {
+    return prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      SELECT ${SELECT_COLS}
+      FROM afiliados a
+      LEFT JOIN padron_saladillo p ON a.dni_numero = p.documento
+      WHERE a.is_seen = true
+      ORDER BY a.seen_at DESC
+    `)
+  }
+
   async markAsSeen(affiliateId: number): Promise<Affiliate> {
-    const updated = await prisma.afiliado.update({
-      where: { id: affiliateId },
-      data: { is_seen: true, seen_at: new Date() },
-    })
-    return { ...updated, telefono: null, mail: null }
+    const rows = await prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      UPDATE afiliados
+      SET is_seen = true, seen_at = NOW()
+      WHERE id = ${affiliateId}
+      RETURNING id, distrito, codigo, apellido, nombres, genero, dni_tipo,
+                dni_numero, fecha_nacimiento, is_seen, seen_at, assigned_user_id,
+                NULL::text AS telefono, NULL::text AS mail
+    `)
+    return rows[0]
   }
 
   async assignToUser(affiliateIds: number[], userId: string): Promise<number> {
-    const result = await prisma.afiliado.updateMany({
-      where: { id: { in: affiliateIds } },
-      data: { assigned_user_id: userId, is_seen: false, seen_at: null },
-    })
-    return result.count
+    const result = await prisma.$executeRaw(Prisma.sql`
+      UPDATE afiliados
+      SET assigned_user_id = ${userId}, is_seen = false, seen_at = NULL
+      WHERE id = ANY(${affiliateIds}::int[])
+    `)
+    return result
   }
 
   async findById(id: number): Promise<Affiliate | null> {
@@ -90,5 +105,16 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
       )
     `)
     return result
+  }
+
+  async findUnassigned(limit = 500): Promise<Affiliate[]> {
+    return prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      SELECT ${SELECT_COLS}
+      FROM afiliados a
+      LEFT JOIN padron_saladillo p ON a.dni_numero = p.documento
+      WHERE a.assigned_user_id IS NULL
+      ORDER BY a.apellido NULLS LAST
+      LIMIT ${limit}
+    `)
   }
 }

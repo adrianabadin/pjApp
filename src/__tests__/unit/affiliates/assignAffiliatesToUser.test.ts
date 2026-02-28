@@ -10,8 +10,10 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     findById: vi.fn(),
     findByDni: vi.fn(),
     findConfirmedToday: vi.fn().mockResolvedValue([]),
+    findAllConfirmed: vi.fn().mockResolvedValue([]),
     countUnassigned: vi.fn().mockResolvedValue(0),
     assignNextBatch: vi.fn().mockResolvedValue(0),
+    findUnassigned: vi.fn().mockResolvedValue([]),
     ...overrides,
   }
 }

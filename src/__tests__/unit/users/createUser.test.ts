@@ -20,6 +20,8 @@ function makeUser(overrides: Partial<User> = {}): User {
     name: "Test User",
     role: "operator",
     created_at: new Date("2024-01-01"),
+    reset_token: null,
+    reset_token_expires_at: null,
     ...overrides,
   }
 }
@@ -29,6 +31,9 @@ function makeRepo(overrides: Partial<UserRepository> = {}): UserRepository {
     findByEmail: vi.fn().mockResolvedValue(null),
     findById: vi.fn().mockResolvedValue(null),
     create: vi.fn().mockResolvedValue(makeUser()),
+    saveResetToken: vi.fn().mockResolvedValue(undefined),
+    findByResetToken: vi.fn().mockResolvedValue(null),
+    updatePassword: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   }
 }

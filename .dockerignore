@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.claude
+.mcp.json
+.env*
+test-results
+docs
+coverage
+*.tsbuildinfo
+playwright.config.ts
+vitest.config.ts

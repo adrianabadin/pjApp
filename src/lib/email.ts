@@ -6,7 +6,7 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
   const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
     to,
     subject: "Restablecer contraseña — PJ Saladillo",
@@ -29,13 +29,14 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
       </div>
     `,
   })
+  if (error) throw new Error(`Error enviando email de recuperación: ${error.message}`)
 }
 
 export async function sendInvitationEmail(to: string, token: string): Promise<void> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
   const registerUrl = `${baseUrl}/register?token=${token}`
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
     to,
     subject: "Invitación al sistema — PJ Saladillo",
@@ -58,4 +59,5 @@ export async function sendInvitationEmail(to: string, token: string): Promise<vo
       </div>
     `,
   })
+  if (error) throw new Error(`Error enviando invitación: ${error.message}`)
 }

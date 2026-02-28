@@ -5,4 +5,6 @@ export interface User {
   name: string | null
   role: string
   created_at: Date
+  reset_token: string | null
+  reset_token_expires_at: Date | null
 }
