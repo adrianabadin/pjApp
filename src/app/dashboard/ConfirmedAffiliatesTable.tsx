@@ -98,7 +98,7 @@ export function ConfirmedAffiliatesTable({ groups }: Props) {
                         <TableCell className="text-sm">{a.mail ?? "—"}</TableCell>
                         <TableCell className="text-sm">
                           {a.seen_at
-                            ? new Date(a.seen_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
+                            ? new Date(a.seen_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })
                             : "—"}
                         </TableCell>
                         <TableCell>

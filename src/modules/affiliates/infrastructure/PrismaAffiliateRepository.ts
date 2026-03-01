@@ -170,4 +170,13 @@ export class PrismaAffiliateRepository implements AffiliateRepository {
     `)
     return rows[0]
   }
+
+  async findAll(): Promise<Affiliate[]> {
+    return prisma.$queryRaw<Affiliate[]>(Prisma.sql`
+      SELECT ${SELECT_COLS}
+      FROM afiliados a
+      LEFT JOIN padron_saladillo p ON a.dni_numero = p.documento
+      ORDER BY a.apellido NULLS LAST
+    `)
+  }
 }

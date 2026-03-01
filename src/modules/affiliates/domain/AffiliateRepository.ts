@@ -22,4 +22,5 @@ export interface AffiliateRepository {
   updateContactInfo(id: number, data: AffiliateContactData): Promise<Affiliate>
   unassignFromUser(id: number): Promise<void>
   unmarkAsSeen(id: number): Promise<Affiliate>
+  findAll(): Promise<Affiliate[]>
 }

@@ -28,13 +28,22 @@ export default async function DashboardLayout({
             priority
           />
           {session.user?.role === "admin" && (
-            <Link
-              href="/dashboard/users"
-              className="text-sm font-medium transition-colors"
-              style={{ color: "rgba(255,255,255,0.75)" }}
-            >
-              Usuarios
-            </Link>
+            <>
+              <Link
+                href="/dashboard/users"
+                className="text-sm font-medium transition-colors"
+                style={{ color: "rgba(255,255,255,0.75)" }}
+              >
+                Usuarios
+              </Link>
+              <Link
+                href="/dashboard/contacts"
+                className="text-sm font-medium transition-colors"
+                style={{ color: "rgba(255,255,255,0.75)" }}
+              >
+                Contactos
+              </Link>
+            </>
           )}
         </div>
         <div className="flex items-center gap-3">

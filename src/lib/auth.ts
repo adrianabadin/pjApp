@@ -26,6 +26,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "openid email profile https://www.googleapis.com/auth/contacts",
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
     }),
   ],
   session: { strategy: "jwt" },
@@ -40,33 +47,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!existing) return "/login?error=NoAccount"
 
         // Upsert the OAuth account link and store tokens
-        await prisma.account.upsert({
-          where: {
-            provider_providerAccountId: {
+        try {
+          await prisma.account.upsert({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+            create: {
+              id: crypto.randomUUID(),
+              userId: existing.id,
+              type: account.type,
               provider: account.provider,
               providerAccountId: account.providerAccountId,
+              access_token: account.access_token ?? null,
+              refresh_token: account.refresh_token ?? null,
+              expires_at: account.expires_at ?? null,
+              token_type: account.token_type ?? null,
+              scope: account.scope ?? null,
+              id_token: account.id_token ?? null,
             },
-          },
-          create: {
-            id: crypto.randomUUID(),
-            userId: existing.id,
-            type: account.type,
-            provider: account.provider,
-            providerAccountId: account.providerAccountId,
-            access_token: account.access_token ?? null,
-            refresh_token: account.refresh_token ?? null,
-            expires_at: account.expires_at ?? null,
-            token_type: account.token_type ?? null,
-            scope: account.scope ?? null,
-            id_token: account.id_token ?? null,
-          },
-          update: {
-            access_token: account.access_token ?? null,
-            refresh_token: account.refresh_token ?? null,
-            expires_at: account.expires_at ?? null,
-            id_token: account.id_token ?? null,
-          },
-        })
+            update: {
+              access_token: account.access_token ?? null,
+              refresh_token: account.refresh_token ?? null,
+              expires_at: account.expires_at ?? null,
+              id_token: account.id_token ?? null,
+            },
+          })
+        } catch (err) {
+          console.error("[auth] Failed to upsert Google account link:", err)
+        }
 
         // Propagate id and role into the user object for jwt callback
         user.id = existing.id

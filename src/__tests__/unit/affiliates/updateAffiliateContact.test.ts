@@ -40,6 +40,7 @@ function makeRepo(overrides: Partial<AffiliateRepository> = {}): AffiliateReposi
     updateContactInfo: vi.fn(),
     unassignFromUser: vi.fn(),
     unmarkAsSeen: vi.fn(),
+    findAll: vi.fn().mockResolvedValue([]),
     ...overrides,
   }
 }
