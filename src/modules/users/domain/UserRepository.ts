@@ -7,4 +7,6 @@ export interface UserRepository {
   saveResetToken(userId: string, token: string, expiresAt: Date): Promise<void>
   findByResetToken(token: string): Promise<User | null>
   updatePassword(userId: string, passwordHash: string): Promise<void>
+  findAll(): Promise<User[]>
+  updateRole(userId: string, role: string): Promise<void>
 }

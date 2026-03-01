@@ -41,4 +41,12 @@ export class PrismaUserRepository implements UserRepository {
       WHERE id = ${userId}
     `)
   }
+
+  async findAll(): Promise<User[]> {
+    return prisma.user.findMany({ orderBy: { created_at: "desc" } })
+  }
+
+  async updateRole(userId: string, role: string): Promise<void> {
+    await prisma.user.update({ where: { id: userId }, data: { role } })
+  }
 }

@@ -8,6 +8,7 @@ import { UnassignAffiliateUseCase } from "@/modules/affiliates/application/unass
 import { PrismaUserRepository } from "@/modules/users/infrastructure/PrismaUserRepository"
 import { CreateUserUseCase } from "@/modules/users/application/createUser"
 import { AuthenticateUserUseCase } from "@/modules/users/application/authenticateUser"
+import { UpdateUserRoleUseCase } from "@/modules/users/application/updateUserRole"
 import { PrismaInvitationRepository } from "@/modules/invitations/infrastructure/PrismaInvitationRepository"
 
 // Repositories
@@ -21,6 +22,7 @@ export const markAsSeen = new MarkAsSeenUseCase(affiliateRepo)
 export const assignAffiliatesToUser = new AssignAffiliatesToUserUseCase(affiliateRepo)
 export const createUser = new CreateUserUseCase(userRepo)
 export const authenticateUser = new AuthenticateUserUseCase(userRepo)
+export const updateUserRole = new UpdateUserRoleUseCase(userRepo)
 export const confirmPresenceByDni = new ConfirmPresenceByDniUseCase(affiliateRepo)
 export const updateAffiliateContact = new UpdateAffiliateContactUseCase(affiliateRepo)
 export const unassignAffiliate = new UnassignAffiliateUseCase(affiliateRepo)

@@ -57,6 +57,8 @@ function makeUserRepo(overrides: Partial<UserRepository> = {}): UserRepository {
     saveResetToken: vi.fn().mockResolvedValue(undefined),
     findByResetToken: vi.fn().mockResolvedValue(null),
     updatePassword: vi.fn().mockResolvedValue(undefined),
+    findAll: vi.fn().mockResolvedValue([]),
+    updateRole: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   }
 }

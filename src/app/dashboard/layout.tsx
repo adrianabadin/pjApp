@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { signOut } from "@/lib/auth";
 import Image from "next/image";
+import Link from "next/link";
 
 export default async function DashboardLayout({
   children,
@@ -17,14 +18,25 @@ export default async function DashboardLayout({
         className="px-4 h-20 sm:px-6 py-2 flex items-center justify-between shadow-sm"
         style={{ backgroundColor: "#020238" }}
       >
-        <Image
-          src="/logo.svg"
-          alt="Partido Justicialista Saladillo"
-          width={140}
-          height={44}
-          className="h-10 w-auto"
-          priority
-        />
+        <div className="flex items-center gap-6">
+          <Image
+            src="/logo.svg"
+            alt="Partido Justicialista Saladillo"
+            width={140}
+            height={44}
+            className="h-10 w-auto"
+            priority
+          />
+          {session.user?.role === "admin" && (
+            <Link
+              href="/dashboard/users"
+              className="text-sm font-medium transition-colors"
+              style={{ color: "rgba(255,255,255,0.75)" }}
+            >
+              Usuarios
+            </Link>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <span
             className="text-xs hidden sm:block"
